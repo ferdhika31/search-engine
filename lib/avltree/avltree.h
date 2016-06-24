@@ -1,7 +1,7 @@
 /*
 	Program 		: avltree.h
 	Deskripsi 		: ADT AVL Tree
-	Author 			: Zentut
+	Author 			: 
 	Tanggal/Version : 21/06/2016 v.1.0
 	Compiler 		: Dev C++ V5.7.1
 	Ctt Lain 		: from www.zentut.com 

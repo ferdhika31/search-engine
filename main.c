@@ -14,56 +14,46 @@
 
 int main(){
 	/* Deklarasi */
-	SE listKata[jmlFile()];
-	char line[255];
-	char tok[] = " !?-.,\":\n\t";
-	char *token;
-	FILE *fr;
-	int i;
+	SE listFile[jmlFile()];
+	int i,j=0,jmlKata=0;
+	char tok[] = " -.,\":";
+	char *token, *tempCari[25];
+	bool isExist = true;
+	int NotExist = 0;
+	int indexTampil[jmlFile()];
 	
 	// Init stopword
 	initStopword();
 	
 	// Init search engine
-	initSearchEngine(listKata);
+	initSearchEngine(listFile);
 
-	/* Algoritma */
-	for(i=0;i<jmlFile();i++){
-		fr = fopen (listKata[i].pathfile, "r");  /* open the file for reading */
-		if (!fr) return 1;
-		
-		while (fgets(line,sizeof(line), fr)!=NULL){
-			token = strtok(line, tok);
-			while(token != NULL){
-				StrLower(token);
-				if(!cariStopword(token)){
-					listKata[i].data = insertAVL(token,listKata[i].data);
-				}
-				
-				token = strtok(NULL,tok);
-			}
-		}
-		fclose(fr);	
-	}
-	
+	/* Algoritma */	
 	char cari[50];
-	printf("Masukkan kata yang dicari : ");
-//	scanf("%s",&cari);
+	printf("Masukkan kata yang dicari:");
 	gets(cari);
-	StrLower(cari);
 	
-	printf("\nPencarian dengan keyword %s :\n",cari);
-	for(i=0;i<jmlFile();i++){
-//		// Nyari nama file
-//		StrLower(listKata[i].namafile);
-//		if(strstr(listKata[i].namafile, cari)!=NULL){
-//			printf("Nama file %s\n",listKata[i].namafile);
-//		}
-		if(find(cari, listKata[i].data)!=NULL){
-			printf("(*) %s jumlah frekuensi %d\n",listKata[i].namafile,countKata(find(cari, listKata[i].data)));
-		}
+	// kalimat
+	token = strtok(cari,tok);
+	while(token != NULL){
+		tempCari[jmlKata] = token;
+		token = strtok(NULL,tok);
+		jmlKata++;
 	}
-
+	
+	// operasi strlower dan hitung jumlah kata
+	wordOperation(jmlKata, tempCari, listFile);
+	
+	// cek file dari kalimat yang diinputkan
+	cekKalimat(&i, &NotExist, listFile, jmlKata, indexTampil, tempCari);
+	
+	// cek file per kata
+	cekPerKata(&i, &NotExist, listFile, jmlKata, indexTampil, tempCari);
+	
+	// hasil searching
+	hasilSearching(indexTampil, i, listFile);
+		
+	exit(1);
 
 	return 0;
 }
