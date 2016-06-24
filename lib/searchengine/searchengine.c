@@ -121,21 +121,92 @@ void hasilSorting(int ExistedTerm[], int df, SE listFile[], char cari[]){
 	}
 }
 
-void hasilSearching(int indexTampil[], int i, SE listFile[]){
+void hasilSearching(int indexTampil[], int jumlahFilena, SE listFile[]){
 	int l;
-	if(i==0){ //NotExist == jmlKata + jmlFile()
-		printf("\nTidak ada file dengan kata tersebut.");
-	}else{
-		printf("Hasil : \n");
-		for(l=0;l<i;l++){
-			printf("Fileke : %d = %s TF-IDF:(%0.2f)\n",l, listFile[indexTampil[l]].namafile, listFile[indexTampil[l]].tfIdf);
+	char back,yakin;
+	int teuAktif,aktif,pencet,xAwal,xAkhir,korektor,y,j,k=0,korXakhir=0;
+	short i=0;
+	char pathFile[100];
+	
+	do{
+		i=2;
+		teuAktif = 0; //null char
+		aktif = 111; //simbol o sebagai chosen menu
+		korektor = 0;
+		xAwal = 10;
+		xAkhir = 10;
+		
+		kordinat(8,16);
+		if(jumlahFilena==0){ //NotExist == jmlKata + jmlFile()
+			printf("Tidak ada file dengan keyword tersebut.");
+		}else{
+			printf("Hasil : ");
 		}
-	}
+		for(j=1;j<=jumlahFilena;j++){
+			k=j*2;
+			korXakhir = 8+k;
+			kordinat(korXakhir,21);
+			printf("%c %s TF-IDF:(%0.2f)",teuAktif, listFile[indexTampil[j-1]].namafile, listFile[indexTampil[j-1]].tfIdf);
+		}
+		korXakhir = 8+j*2;
+		kordinat(korXakhir,21);
+		printf("%c Cari Lagi",teuAktif);
+		j++;
+		korXakhir = 8+j*2;
+		kordinat(korXakhir,21);
+		printf("%c Keluar",teuAktif);
+		
+		kordinat(10,16);
+		printf("%c",aktif);
+		
+		while(korektor != 1){
+			kordinat(xAwal,-1);
+			xAkhir = xAwal;
+			pencet = getch();
+			if(pencet == 13){
+				korektor = 1;
+			}else{
+				if(pencet == 80){
+					xAwal += 2;
+				}
+				if(pencet == 72){
+					xAwal -= 2;
+				}
+				if(xAwal > korXakhir){
+					xAwal = 10;
+				}
+				if(xAwal < 10){
+					xAwal = korXakhir;
+				}
+				kordinat(xAkhir,16);
+				printf("%c",teuAktif);
+				kordinat(xAwal,16);
+				printf("%c",aktif);
+			}
+		}
+		for(j=1;j<=jumlahFilena;j++){
+			k=j*2;
+			korXakhir = 8+k;
+			if(xAwal==korXakhir){
+				strcpy(pathFile,"cd files && \"");
+				strcat(pathFile,listFile[indexTampil[j-1]].namafile);
+				strcat(pathFile,"\"");
+				system(pathFile);
+				system("cls");
+				main();
+			}
+		}
+		korXakhir = 8+j*2;
+		if(xAwal==korXakhir){
+			system("cls");
+			main();
+		}else{
+			exit(1);
+		}
+		
+	}while(back!=' ');
 }
 
-/*
-	MODUL FILE
-*/
 int jmlFile(){
 	DIR *dir;
 	struct dirent *ent;

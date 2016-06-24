@@ -21,6 +21,7 @@ int main(){
 	bool isExist = true;
 	int NotExist = 0;
 	int indexTampil[jmlFile()];
+	char cari[50];
 	
 	// Init stopword
 	initStopword();
@@ -28,9 +29,10 @@ int main(){
 	// Init search engine
 	initSearchEngine(listFile);
 
-	/* Algoritma */	
-	char cari[50];
-	printf("Masukkan kata yang dicari:");
+	/* Algoritma */		
+	header();
+	kordinat(7,16);
+	printf("Masukkan kata yang dicari : ");
 	gets(cari);
 	
 	// kalimat
@@ -52,8 +54,6 @@ int main(){
 	
 	// hasil searching
 	hasilSearching(indexTampil, i, listFile);
-		
-	exit(1);
 
 	return 0;
 }
