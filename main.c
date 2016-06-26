@@ -8,8 +8,6 @@
 */
 #include<stdio.h>
 #include<stdbool.h>
-
-#include"lib/avltree/avltree.h"
 #include"lib/searchengine/searchengine.h"
 
 int main(){
@@ -35,18 +33,16 @@ int main(){
 	printf("Masukkan kata yang dicari : ");
 	gets(cari);
 	
-	// kalimat
+	// pecah kalimat menjadi kata dan merubah karakter menjadi lowercase
 	token = strtok(cari,tok);
 	while(token != NULL){
 		tempCari[jmlKata] = token;
+		StrLower(tempCari[jmlKata]);
 		token = strtok(NULL,tok);
 		jmlKata++;
 	}
 	
-	// operasi strlower dan hitung jumlah kata
-	wordOperation(jmlKata, tempCari, listFile);
-	
-	// cek file dari kalimat yang diinputkan
+	// cek file dari kalimat yang diinputkan, akan tampil paling atas jika kedua kata ada pada file tsb dan dikalkulasikan berdasarkan tf-idf nya
 	cekKalimat(&i, &NotExist, listFile, jmlKata, indexTampil, tempCari);
 	
 	// cek file per kata

@@ -5,6 +5,9 @@
 	Tanggal/Version : 21/06/2016 v.0.1
 	Compiler 		: Dev C++ V5.7.1
 	Ctt Lain 		: 
+		(*) http://www.ranks.nl/stopwords/indonesian
+		(*) Modul menu dari project ludo Husain Fadhlullah
+		(*) get list file on directory from http://stackoverflow.com/a/612176/1517085
 */
 #include<stdio.h>
 #include<string.h>
@@ -100,7 +103,7 @@ void fileKeTree(SE listFile[]){
 	}
 }
 
-void hasilSorting(int ExistedTerm[], int df, SE listFile[], char cari[]){	
+void tfidfSortKata(int ExistedTerm[], int df, SE listFile[], char cari[]){	
 	int i,j=0;
 	
 	for(i=0;i<jmlFile();i++){
@@ -142,6 +145,7 @@ void hasilSearching(int indexTampil[], int jumlahFilena, SE listFile[]){
 		}else{
 			printf("Hasil : ");
 		}
+		
 		for(j=1;j<=jumlahFilena;j++){
 			k=j*2;
 			korXakhir = 8+k;
@@ -193,7 +197,9 @@ void hasilSearching(int indexTampil[], int jumlahFilena, SE listFile[]){
 				strcat(pathFile,"\"");
 				system(pathFile);
 				system("cls");
-				main();
+				header();
+				hasilSearching(indexTampil, jumlahFilena, listFile);
+//				main();
 			}
 		}
 		korXakhir = 8+j*2;
@@ -238,23 +244,43 @@ void countJmlKata(SE listFile[], char cari[]){
 }
 
 void cekKalimat(int *i, int *NotExist, SE listFile[], int jmlKata, int indexTampil[], char* tempCari[]){
-	int j;
-	(*i)=0;
+	int j,k, tf=0;
+	
+	// count jumlah kata yang cocok dengan keyword dengan kata yang ada pada isi file
+	for(j=0;j<jmlKata;j++){
+		countJmlKata(listFile,tempCari[j]);
+	}
+	
 	for(j=0;j<jmlFile();j++){
 		// tampil pertama berdasarkan frequensi (semua kata ada pada file)
 		if(listFile[j].JmlKata == jmlKata){
-//			printf("\n(*) %s : %.2f", listFile[j].namafile, listFile[j].tfIdf);
 			indexTampil[(*i)]=j;
 			(*i)++;
 		}else{
-			NotExist++;
+			(*NotExist)++;
 		}
 	}
+	
+	// Kalkulasi TF-IDF Kata
+//	printf("Sebelum Sorting : \n");
+	for(j=0;j<(*i);j++){
+		for(k=0;k<jmlKata;k++){
+			tf = countKata(find(tempCari[k], listFile[indexTampil[j]].data));
+			// printf("Kata : %s (%d)\n", tempCari[k],countKata(find(tempCari[k], listFile[indexTampil[j]].data)));
+			listFile[indexTampil[j]].tfIdf += TfIdf(tf, jmlFile(), (*i));
+//			printf("TFIDF Asal : %f | TF : %d | JmFile : %d | DF: %d\n",listFile[indexTampil[j]].tfIdf, tf,jmlFile(), (*i));
+		}
+//		printf("(*) %s : %.2f\n", listFile[indexTampil[j]].namafile, listFile[indexTampil[j]].tfIdf);
+	}
+	
+	// sorting file desc berdasarkan TF-IDF
+	sortingFile(0,(*i), listFile, indexTampil);
 }
 
 void cekPerKata(int *i, int *NotExist, SE listFile[], int jmlKata, int indexTampil[], char* tempCari[]){
-	int j, df, k;
+	int j, df, k, index;
 	bool isExist;
+	
 	
 	for(j=0;j<jmlKata;j++){
 		df = getDF(listFile, tempCari[j]);
@@ -264,22 +290,24 @@ void cekPerKata(int *i, int *NotExist, SE listFile[], int jmlKata, int indexTamp
 		}else{
 			int ExistedTerm[df-1];
 			
-			// sorting berdasarkan tfidf
-			hasilSorting(ExistedTerm, df, listFile, tempCari[j]);
+			// Kalkulasi TF-IDF Kata & Sorting File
+			tfidfSortKata(ExistedTerm, df, listFile, tempCari[j]);
 			
-			for(j = 0 ; j < df; j++){
+			// seleksi file sebelumnya yang udah tampil di kalimat
+			for(index = 0 ; index < df; index++){
 				k=0;
 				isExist=false;
+				// membandingkan file yang ada di modul kalimat dengan modul kata
 				while(k<(*i) && !isExist){
-					if(ExistedTerm[j]==indexTampil[k]){
+					if(ExistedTerm[index]==indexTampil[k]){
 						isExist=true;
 					}
 					k++;
 				}
 				if(!isExist){
-					indexTampil[(*i)]=ExistedTerm[j];
+					indexTampil[(*i)]=ExistedTerm[index];
 					(*i)++;
-//					printf("\n(*) %s jumlah frekuensi %d, Tf-Idf %.2f",listFile[ExistedTerm[j]].namafile,countKata(find(tempCari[j], listFile[ExistedTerm[j]].data)),listFile[ExistedTerm[j]].tfIdf);
+//					printf("\n(*) %s  Tf-Idf %.2f",listFile[ExistedTerm[index]].namafile, listFile[ExistedTerm[index]].tfIdf);
 				}
 			}
 			
@@ -300,7 +328,18 @@ void wordOperation(int jmlKata, char* tempCari[], SE listFile[]){
 	// operasi per kata
 	for(j=0;j<jmlKata;j++){
 		StrLower(tempCari[j]);
-		countJmlKata(listFile,tempCari[j]);
+	}
+}
+
+void sortingFile(int indexAwal, int indexAkhir, SE listFile[], int index[]){
+	int j,i;
+	
+	for(j = indexAwal ; j < indexAkhir-1; j++){
+		for(i = j+1 ; i < indexAkhir ; i++){
+			if(listFile[index[j]].tfIdf < listFile[index[i]].tfIdf || (listFile[index[j]].tfIdf == listFile[index[i]].tfIdf && listFile[index[j]].namafile > listFile[index[i]].namafile)){
+				swap(&index[j],&index[i]);
+			} // isi array disort berdasarkan Tf Idf, atau berdasarkan nama bila Tf Idfnya sama
+		}
 	}
 }
 
@@ -322,10 +361,15 @@ int getDF(SE listFile[],char cari[]){
 float TfIdf(int tf, int jml_file, int df){
 	// tf = jumlah kata yg dicari dalam 1 file
 	// df = jumlah dokumen yang mengandung kata yang dicari
-	return (tf)*log(jml_file/df);
+//	if(jml_file==df){
+//		return (tf)*0.1;
+//	}else{
+		return (tf)*log(jml_file/df);
+//	}
+	
 }
 
-/* Swapping */
+/* Swap */
 void swap(int *A, int *B){
 	(*A) = (*A) + (*B);
 	(*B) = (*A) - (*B);

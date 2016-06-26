@@ -123,7 +123,7 @@ BuildCmd=
 [Unit6]
 FileName=lib\ui\ui.c
 CompileCpp=0
-Folder=ui
+Folder=lib/ui
 Compile=1
 Link=1
 Priority=1000

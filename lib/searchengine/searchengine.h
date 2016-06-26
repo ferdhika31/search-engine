@@ -33,7 +33,9 @@ void initSearchEngine(SE listFile[]);
 	Memasukkan kata dari isi file ke avl tree
 */
 void fileKeTree(SE listFile[]);
-void hasilSorting(int ExistedTerm[], int df, SE listFile[], char cari[]);
+
+void tfidfSortKata(int ExistedTerm[], int df, SE listFile[], char cari[]);
+
 void hasilSearching(int indexTampil[], int jumlahFilena, SE listFile[]);
 
 /*
@@ -51,7 +53,10 @@ void StrLower(char str[]);
 
 void wordOperation(int jmlKata, char* tempCari[], SE listFile[]);
 
+void sortingFile(int indexAwal, int indexAkhir, SE listFile[], int index[]);
+
 int getDF(SE listFile[],char cari[]);
+
 float TfIdf(int tf, int jml_file, int df); // mengembalikan nilai Term Frequency
 
 void swap(int *A, int *B);
