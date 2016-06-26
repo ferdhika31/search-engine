@@ -1,7 +1,7 @@
 /*
 	Program 		: Main.c
 	Deskripsi 		: Mini search engine 
-	Author 			: Ferdhika Yudira (151524010) & Gita Suciana
+	Author 			: Ferdhika Yudira (151524010) & Gita Suciana (151524012)
 	Tanggal/Version : 21/06/2016 v.1.0
 	Compiler 		: Dev C++ V5.7.1
 	Ctt Lain 		: Mini search engine
@@ -37,12 +37,12 @@ int main(){
 	token = strtok(cari,tok);
 	while(token != NULL){
 		tempCari[jmlKata] = token;
-		StrLower(tempCari[jmlKata]);
+		StrLower(tempCari[jmlKata]); 
 		token = strtok(NULL,tok);
 		jmlKata++;
 	}
 	
-	// cek file dari kalimat yang diinputkan, akan tampil paling atas jika kedua kata ada pada file tsb dan dikalkulasikan berdasarkan tf-idf nya
+	// cek file dari kalimat yang diinputkan, akan tampil paling atas jika semua kata ada pada file tsb dan dikalkulasikan berdasarkan tf-idf nya
 	cekKalimat(&i, &NotExist, listFile, jmlKata, indexTampil, tempCari);
 	
 	// cek file per kata

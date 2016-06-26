@@ -1,7 +1,7 @@
 /*
 	Program 		: searchengine.c
 	Deskripsi 		: ADT Mini Search Engine
-	Author 			: Ferdhika Yudira (151524010) & Gita Suciana
+	Author 			: Ferdhika Yudira (151524010) & Gita Suciana (151524012)
 	Tanggal/Version : 21/06/2016 v.0.1
 	Compiler 		: Dev C++ V5.7.1
 	Ctt Lain 		: 
@@ -16,8 +16,13 @@
 #include"../avltree/avltree.h"
 #include"searchengine.h"
 
+// Var Global avl tree stopword
 AVL *avlStopWord = NULL;
 
+/*
+	Membangun sebuah avl tree dan memasukkan semua kata yang ada pada file text stopword 
+	kedalam avl tree dengan semua karakter menjadi lowercase.
+*/
 void initStopword(){
 	char kata[50];
 	FILE *fr;
@@ -36,15 +41,27 @@ void initStopword(){
 	fclose(fr);
 }
 
+/*
+	Menampilkan kata stopword yang ada pada tree
+*/
 void tampilStopWord(){	
 	display_avl(avlStopWord);
 }
 
+/*
+	Mencari kata dalam stopword.
+	akan menghasilkan nilai true jika kata yang di cari ada pada tree stopword
+	dan menghasilkan nilai false jika kata yang di cari tidak ada.
+*/
 bool cariStopword(char *kata){
 	// ngambil modul find kata dari avl
 	return (find(kata, avlStopWord)==NULL) ? false : true;
 }
 
+/*
+	Membaca semua file yang ada di dalam direktori (files).
+	Membuat avl tree sejumlah file yang ada pada direktori dan menginisialisasi data, tfidf, pathfile, namafile dan jumlahKata.
+*/
 void initSearchEngine(SE listFile[]){	
 	DIR *dir;
 	struct dirent *ent;
@@ -77,6 +94,10 @@ void initSearchEngine(SE listFile[]){
 	}
 }
 
+/*
+	Memasukkan semua kata yang tidak mengandung kata stopword ke dalam tree 
+	dan menghitung frekuensi masing masing dari kata tersebut.
+*/
 void fileKeTree(SE listFile[]){
 	char line[25];
 	char separator[] = " !?-.,\":\n\t";
@@ -92,7 +113,7 @@ void fileKeTree(SE listFile[]){
 			token = strtok(line, separator);
 			while(token != NULL){
 				StrLower(token);
-				if(!cariStopword(token)){
+				if(!cariStopword(token)){ // seleksi stopword
 					listFile[i].data = insertAVL(token,listFile[i].data);
 				}
 				
@@ -103,6 +124,9 @@ void fileKeTree(SE listFile[]){
 	}
 }
 
+/*
+	Mengkalkulasikan tf-idf dari kata yang dicari dalam file dan menyusun urutan dari tf-idf yang terbesar (Descending)
+*/
 void tfidfSortKata(int ExistedTerm[], int df, SE listFile[], char cari[]){	
 	int i,j=0;
 	
@@ -124,6 +148,11 @@ void tfidfSortKata(int ExistedTerm[], int df, SE listFile[], char cari[]){
 	}
 }
 
+/*
+	Menampilkan hasil dari pencarian, jika tidak ada kata yang dicari dalam file
+	akan menampilkan pesan Tidak ada file dengan keyword tersebut.
+	dan jika ada, akan menampilkan file yang isinya sesuai dengan keyword yang dimasukkan
+*/
 void hasilSearching(int indexTampil[], int jumlahFilena, SE listFile[]){
 	int l;
 	char back,yakin;
@@ -146,6 +175,7 @@ void hasilSearching(int indexTampil[], int jumlahFilena, SE listFile[]){
 			printf("Hasil : ");
 		}
 		
+		// Print Hasil
 		for(j=1;j<=jumlahFilena;j++){
 			k=j*2;
 			korXakhir = 8+k;
@@ -213,6 +243,9 @@ void hasilSearching(int indexTampil[], int jumlahFilena, SE listFile[]){
 	}while(back!=' ');
 }
 
+/*
+	Mengambil jumlah file dalam folder, menghasilkan nilai berupa integer
+*/
 int jmlFile(){
 	DIR *dir;
 	struct dirent *ent;
@@ -234,6 +267,10 @@ int jmlFile(){
 	return total_file;
 }
 
+/*
+	Menghitung jumlah kata untuk mencocokan jumlah kata pada keyword dengan
+	jumlah kata yang di cari pada file
+*/
 void countJmlKata(SE listFile[], char cari[]){
 	int i;
 	for(i=0;i<jmlFile();i++){
@@ -243,6 +280,11 @@ void countJmlKata(SE listFile[], char cari[]){
 	}
 }
 
+/*
+	cek file dari kalimat yang diinputkan, 
+	akan tampil paling atas jika semua kata ada pada file tsb 
+	dan diurutkan berdasarkan tf-idf nya
+*/
 void cekKalimat(int *i, int *NotExist, SE listFile[], int jmlKata, int indexTampil[], char* tempCari[]){
 	int j,k, tf=0;
 	
@@ -251,6 +293,7 @@ void cekKalimat(int *i, int *NotExist, SE listFile[], int jmlKata, int indexTamp
 		countJmlKata(listFile,tempCari[j]);
 	}
 	
+	// Memasukkan index file yang semua kata yang dimasukkan ke dalam sebuah array
 	for(j=0;j<jmlFile();j++){
 		// tampil pertama berdasarkan frequensi (semua kata ada pada file)
 		if(listFile[j].JmlKata == jmlKata){
@@ -277,6 +320,11 @@ void cekKalimat(int *i, int *NotExist, SE listFile[], int jmlKata, int indexTamp
 	sortingFile(0,(*i), listFile, indexTampil);
 }
 
+/*
+	cek file per kata
+	akan tampil setelah pengecekkan kalimat 
+	dan diurutkan berdasarkan tf-idf nya
+*/
 void cekPerKata(int *i, int *NotExist, SE listFile[], int jmlKata, int indexTampil[], char* tempCari[]){
 	int j, df, k, index;
 	bool isExist;
@@ -315,6 +363,9 @@ void cekPerKata(int *i, int *NotExist, SE listFile[], int jmlKata, int indexTamp
 	}
 }
 
+/*
+	Merubah string huruf besar (uppercase) menjadi huruf kecil (lowercase)
+*/
 void StrLower(char str[]){
 	int i;
 	for (i = 0; str[i] != '\0'; i++){
@@ -322,15 +373,9 @@ void StrLower(char str[]){
 	}
 }
 
-void wordOperation(int jmlKata, char* tempCari[], SE listFile[]){
-	int j;
-	
-	// operasi per kata
-	for(j=0;j<jmlKata;j++){
-		StrLower(tempCari[j]);
-	}
-}
-
+/*
+	Mengurutkan file berdasarkan tf-idf secara descending
+*/
 void sortingFile(int indexAwal, int indexAkhir, SE listFile[], int index[]){
 	int j,i;
 	
@@ -358,6 +403,12 @@ int getDF(SE listFile[],char cari[]){
 	return jumlah;
 }
 
+/*
+	Kalkulasi TF-IDF
+	Rumus : tf * log(jml_file/df)
+	tf = jumlah kata yg dicari dalam 1 file
+	df = jumlah dokumen yang mengandung kata yang dicari
+*/
 float TfIdf(int tf, int jml_file, int df){
 	// tf = jumlah kata yg dicari dalam 1 file
 	// df = jumlah dokumen yang mengandung kata yang dicari
